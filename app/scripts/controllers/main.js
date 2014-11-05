@@ -78,9 +78,9 @@ angular.module('2048GridApp')
         var newRow = removeEmpty(data[i]);
 
         // merge the cells that have the same number
-        do {
+        while(twoNumberNeighbor(newRow)) {
           newRow = pushLeft(newRow);
-        } while(twoNumberNeighbor(newRow));
+        }
 
         // add empty cell
         while (newRow.length < 4) {
@@ -99,9 +99,9 @@ angular.module('2048GridApp')
         var newRow = removeEmpty(data[i]);
 
         // merge the cells that have the same number
-        do {
+        while(twoNumberNeighbor(newRow)) {
           newRow = pushRight(newRow);
-        } while(twoNumberNeighbor(newRow));
+        }
 
         // add empty cell
         while (newRow.length < 4) {
@@ -120,9 +120,9 @@ angular.module('2048GridApp')
         var newColumn = removeEmpty(extractColumn(data, i));
 
         // merge the cells that have the same number
-        do {
+        while(twoNumberNeighbor(newColumn)) {
           newColumn = pushLeft(newColumn);
-        } while(twoNumberNeighbor(newColumn));
+        }
 
         // add empty cell
         while (newColumn.length < 4) {
@@ -140,9 +140,9 @@ angular.module('2048GridApp')
         var newColumn = removeEmpty(extractColumn(data, i));
 
         // merge the cells that have the same number
-        do {
+        while(twoNumberNeighbor(newColumn)) {
           newColumn = pushRight(newColumn);
-        } while(twoNumberNeighbor(newColumn));
+        }
 
         // add empty cell
         while (newColumn.length < 4) {
@@ -163,6 +163,10 @@ angular.module('2048GridApp')
             freeIndexes.push([i, j]);
           }
         }
+      }
+
+      if (freeIndexes.length === 0) {
+        return false;
       }
 
       var newIndex = sample(freeIndexes);
@@ -200,6 +204,11 @@ angular.module('2048GridApp')
           $scope.$apply();
           break;
       }
+
+      if ($scope.game === false) {
+        console.log('Game Over');
+      }
+
     });
 
     $scope.game = initGame();

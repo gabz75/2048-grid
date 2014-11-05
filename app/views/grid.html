@@ -2,7 +2,7 @@
   <div class="canvas-row" ng-repeat="row in game">
     <div
       ng-repeat="cell in row track by $index"
-      ng-class="{ empty: cell == -1 }" class="tile tile-{{ cell }} tile-{{ $parent.$index + 1 }}-{{ $index + 1 }}">
+       class="tile tile-{{ cell }} tile-{{ $parent.$index + 1 }}-{{ $index + 1 }}">
       <span ng-if="cell > -1">{{ cell }}</span>
       <span ng-if="cell == -1">&nbsp;</span>
     </div>
