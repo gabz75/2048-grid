@@ -1,187 +1,64 @@
 'use strict';
 
 angular.module('2048GridApp.services', [])
-
-  .service('Game', ['Tile', function(Tile) {
-
+  .service('Game', function() {
     this.tiles = [];
-    this.size  = 4;
-    this.model = [];
 
-    // var vectors = {
-    //   'left': { x: -1, y: 0 },
-    //   'right': { x: 1, y: 0 },
-    //   'up': { x: 0, y: -1 },
-    //   'down': { x: 0, y: 1 }
-    // };
+    var vectors = {
+      'left': { x: -1, y: 0 },
+      'right': { x: 1, y: 0 },
+      'up': { x: 0, y: -1 },
+      'down': { x: 0, y: 1 }
+    };
 
     this.addTile = function(tile) {
       this.tiles.push(tile);
     };
 
-    this.initializeModel = function() {
-      for(var i = 0; i < this.size; i++) {
-        this.model[i] = [];
-        for(var j = 0; j < this.size; j++) {
-          this.model[i][j] = -1;
-        }
-      }
-    };
-
-    this.updateModel = function() {
+    this.move = function(key) {
       var _this = this;
 
       this.tiles.forEach(function(tile) {
-        _this.model[tile.y][tile.x] = tile.value;
+        _this.moveToNextPosition(tile, vectors[key]);
       });
+
     };
 
-    this.updateTiles = function() {
-      this.tiles = [];
-      for(var i = 0; i < this.model.length; i++) {
-        for(var j = 0; j < this.model.length; j++) {
-          if (this.model[i][j] > -1) {
-            this.tiles.push(new Tile({x: i, y: j}, this.model[i][j]));
-          }
+    this.getTileAt = function(tile, vector) {
+      var tileAt = null;
+
+      this.tiles.forEach(function(_tile) {
+        if (tile.x + vector.x === _tile.x && tile.y + vector.y === _tile.y) {
+          tileAt = _tile;
         }
+      });
+
+      return tileAt;
+    };
+
+    this.moveToNextPosition = function(tile, vector) {
+      while(tile.canMoveTo(vector) && this.getTileAt(tile, vector) === null) {
+        tile.move(vector);
       }
     };
 
-    this.removeEmpty = function(array) {
-      var newArray = [];
-
-      for (var i = 0; i < array.length; i++) {
-        if (array[i] > -1) {
-          newArray.push(array[i]);
-        }
-      }
-
-      return newArray;
+    this.positionToCoordinates = function(i) {
+      var x = i % 4,
+          y = (i - x) / 4;
+      return {
+        x: x,
+        y: y
+      };
     };
 
-    this.twoNumberNeighbor = function(row) {
-      var test = false;
-
-      for (var i = 0; i < row.length - 1; i++) {
-        if (row[i] === row[i + 1]) {
-          test = true;
-        }
-      }
-
-      return test;
+    /*
+     * Helper to convert coordinates to position
+     */
+    this.coordinatesToPosition = function(pos) {
+      return (pos.y * 4) + pos.x;
     };
 
-    this.pushLeft = function(subModel) {
-      for (var i = 0; i < subModel.size - 1; i++) {
-        if (subModel[i] === subModel[i + 1]) {
-          subModel[i] = subModel[i] * 2;
-          subModel.splice(i + 1, 1);
-        }
-      }
-
-      return subModel;
-    };
-
-    this.pushRight = function(array) {
-      return this.pushLeft(array.reverse());
-    };
-
-    this.extractColumn = function(index) {
-      var column = [];
-      for (var k = 0; k < this.model.length; k++) {
-        column.push(this.model[k][index]);
-      }
-
-      return column;
-    };
-
-    this.replaceColumn = function(index, array) {
-      for (var k = 0; k < array.length; k++) {
-        this.model[k][index] = array[k];
-      }
-    };
-
-    this.moveLeft = function() {
-      for (var i = 0; i < this.model.length; i++) {
-        // Remove empty cells
-        console.log(this.model[i]);
-        var newRow = this.removeEmpty(this.model[i]);
-
-        console.log(this.twoNumberNeighbor(newRow));
-        console.log('enter');
-        // merge the cells that have the same number
-        while(this.twoNumberNeighbor(newRow) === true) {
-          newRow = this.pushLeft(newRow);
-        }
-
-        // add empty cell
-        while (newRow.length < 4) {
-          newRow.push(-1);
-        }
-
-        this.model[i] = newRow;
-      }
-    };
-
-    this.moveRight = function() {
-      for (var i = 0; i < this.model.length; i++) {
-        // Remove empty cells
-        var newRow = this.removeEmpty(this.model[i]);
-
-        // merge the cells that have the same number
-        while(this.twoNumberNeighbor(newRow) === true) {
-          newRow = this.pushRight(newRow);
-        }
-
-        // add empty cell
-        while (newRow.length < 4) {
-          newRow.unshift(-1);
-        }
-
-        this.model[i] = newRow;
-      }
-    };
-
-    this.moveUp = function() {
-      for (var i = 0; i < this.model.length; i++) {
-        // Remove empty cells
-        var newColumn = this.removeEmpty(this.extractColumn(this.model, i));
-
-        // merge the cells that have the same number
-        while(this.twoNumberNeighbor(newColumn)) {
-          newColumn = this.pushLeft(newColumn);
-        }
-
-        // add empty cell
-        while (newColumn.length < 4) {
-          newColumn.push(-1);
-        }
-
-        this.replaceColumn(i, newColumn);
-      }
-    };
-
-    this.moveDown = function() {
-      for (var i = 0; i < this.model.length; i++) {
-        // Remove empty cells
-        var newColumn = this.removeEmpty(this.extractColumn(this.model, i));
-
-        // merge the cells that have the same number
-        while(this.twoNumberNeighbor(newColumn)) {
-          newColumn = this.pushRight(newColumn);
-        }
-
-        // add empty cell
-        while (newColumn.length < 4) {
-          newColumn.unshift(-1);
-        }
-
-        this.replaceColumn(i, newColumn);
-      }
-    };
-
-  }])
-
+  })
   .factory('Tile', function() {
 
     var Tile = function(pos, val) {
