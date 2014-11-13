@@ -6,7 +6,9 @@ angular
     'ngResource',
     'ngSanitize',
     'ngRoute',
-    'ngAnimate'
+    'ngAnimate',
+    '2048GridApp.services',
+    '2048GridApp.directives'
   ])
   .config(function ($routeProvider) {
     $routeProvider
