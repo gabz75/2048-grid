@@ -5,10 +5,9 @@ angular.module('2048GridApp')
 
     $scope.game = Game;
 
-    $scope.game.addTile(new Tile({ x: 0, y: 0}, 2));
-    $scope.game.addTile(new Tile({ x: 1, y: 1}, 2));
-    $scope.game.addTile(new Tile({ x: 2, y: 1}, 2));
-
+    $scope.game.setCellAt({ x: 0, y: 0}, new Tile({ x: 0, y: 0}, 2));
+    $scope.game.setCellAt({ x: 1, y: 1}, new Tile({ x: 1, y: 1}, 4));
+    $scope.game.setCellAt({ x: 3, y: 1}, new Tile({ x: 3, y: 1}, 4));
 
     $document.bind('keydown', function(event) {
       switch(event.keyCode) {
@@ -32,6 +31,5 @@ angular.module('2048GridApp')
 
     });
 
-    console.log($scope.game.tiles);
 
   });
