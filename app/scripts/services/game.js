@@ -1,10 +1,11 @@
 'use strict';
 
-angular.module('2048GridApp.services', [])
-  .service('Game', ['Tile', function(Tile) {
+angular.module('2048GridApp.services.game', [])
+  .service('Game', ['$q', 'Tile', function($q, Tile) {
     this.tiles = [];
     this.model = [];
     this.size  = 4;
+    this.end   = false;
 
     var vectors = {
       'left': { x: -1, y: 0 },
@@ -13,44 +14,64 @@ angular.module('2048GridApp.services', [])
       'down': { x: 0, y: 1 }
     };
 
+    this.start = function() {
+      this.generateRandomTile();
+      this.generateRandomTile();
+    };
+
     this.move = function(key) {
+      if (this.end) {
+        return;
+      }
+
       var self = this;
+      var positions = self.traversalDirections(key);
+      var p = function() {
+        positions.x.forEach(function(x) {
+          positions.y.forEach(function(y) {
 
-      var positions = this.traversalDirections(key);
+            var tile = self.getCellAt({x: x, y: y });
 
-      positions.x.forEach(function(x) {
-        positions.y.forEach(function(y) {
+            if (tile && tile.moved === false) {
 
-          var tile = self.getCellAt({x: x, y: y });
+              // Attempt to merge the closest cell if there is a match
+              var merged = self.calculateMerge(tile, key);
+              if (merged) {
+                tile = merged;
+              }
 
-          if (tile && tile.moved === false) {
+              // Otherwise move the tile to the right direction
+              var newPosition = self.calculateNextPosition(tile, key);
 
-            // Attempt to merge the closest cell if there is a match
-            var merged = self.calculateMerge(tile, key);
-            if (merged) {
-              tile = merged;
+              if (newPosition) {
+                self.moveTile(tile, newPosition);
+              }
             }
 
-            // Otherwise move the tile to the right direction
-            var newPosition = self.calculateNextPosition(tile, key);
-            if (newPosition) {
-              self.moveTile(tile, newPosition);
-            }
-          }
-
+          });
         });
-      });
 
-      // End of the a turn, we reset the move attribute of each tile
-      this.tiles.forEach(function(tile) {
-        if (tile) {
-          tile.markUnmoved();
+        if (self.availablePositions().length === 0) {
+          return false;
         }
-      });
+
+        // End of the a turn, we reset the move attribute of each tile
+        self.tiles.forEach(function(tile) {
+          if (tile) {
+            tile.markUnmoved();
+          }
+        });
 
         // Generate a new tile
-      this.generateRandomTile();
-   };
+        if (!self.end) {
+          self.generateRandomTile();
+        }
+
+        return true;
+      };
+
+      return $q.when(p());
+    };
 
     this.traversalDirections = function(key) {
       var vector = vectors[key];
@@ -182,35 +203,4 @@ angular.module('2048GridApp.services', [])
       this.setCellAt(newPosition, new Tile(newPosition, this.randomValue()));
     };
 
-  }])
-
-  .factory('Tile', function() {
-
-    var Tile = function(pos, val) {
-      this.x     = pos.x;
-      this.y     = pos.y;
-      this.value = val || 2;
-      this.moved = false;
-    };
-
-    Tile.prototype.markUnmoved = function() {
-      this.moved = false;
-    };
-
-    Tile.prototype.setPosition = function(pos) {
-      this.x = pos.x;
-      this.y = pos.y;
-      this.moved = true;
-    };
-
-    Tile.prototype.newPosition = function(vector) {
-      return { x: this.x + vector.x, y: this.y + vector.y };
-    };
-
-    Tile.prototype.currentPosition = function() {
-      return { x: this.x, y: this.y };
-    };
-
-    return Tile;
-
-  });
+  }]);

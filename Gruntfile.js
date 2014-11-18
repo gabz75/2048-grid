@@ -110,7 +110,10 @@ module.exports = function (grunt) {
           jshintrc: 'test/.jshintrc'
         },
         src: ['test/spec/{,*/}*.js']
-      }
+      },
+      ignores: [
+        '<%= yeoman.app %>/scripts/services/utils.js'
+      ]
     },
 
     // Empties folders to start fresh

@@ -7,7 +7,10 @@ angular
     'ngSanitize',
     'ngRoute',
     'ngAnimate',
-    '2048GridApp.services',
+    '2048GridApp.services.game',
+    '2048GridApp.services.tile',
+    '2048GridApp.services.keyboard',
+    '2048GridApp.services.utils',
     '2048GridApp.directives'
   ])
   .config(function ($routeProvider) {
