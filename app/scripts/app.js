@@ -7,6 +7,7 @@ angular
     'ngSanitize',
     'ngRoute',
     'ngAnimate',
+    '2048GridApp.services.socket',
     '2048GridApp.services.game',
     '2048GridApp.services.tile',
     '2048GridApp.services.keyboard',

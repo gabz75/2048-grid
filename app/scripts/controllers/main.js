@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('2048GridApp')
-  .controller('MainCtrl', function ($scope, $document, Game, KeyboardService) {
+  .controller('MainCtrl', function ($scope, $document, socket, Game, KeyboardService) {
 
     $scope.game = Game;
     $scope.game.start()
@@ -9,6 +9,10 @@ angular.module('2048GridApp')
     KeyboardService.init();
     KeyboardService.on(function(key) {
       $scope.game.move(key);
+    });
+
+    socket.on('init', function (data) {
+      console.log(data);
     });
 
   });
