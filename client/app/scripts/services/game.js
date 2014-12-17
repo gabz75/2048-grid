@@ -21,8 +21,15 @@ angular.module('2048GridApp.services.game', [])
       this.generateRandomTile();
     };
 
-    Game.prototype.setTiles = function(t) {
-      this.tiles = t;
+    Game.prototype.setTiles = function(list) {
+      var self = this;
+
+      list.forEach(function(tile) {
+        if (tile) {
+          var position = { x: tile.x, y: tile.y };
+          self.setCellAt(position, new Tile(position, tile.value));
+        }
+      });
     }
 
     Game.prototype.move = function(key) {
